@@ -1,12 +1,15 @@
 
 <script setup lang="ts">
 import * as tf from '@tensorflow/tfjs';
+import { ref } from 'vue'
 import {capacityInputs, dataSizeInputs, failureCountInputs,
 transferDaysOutputs, capacityTests, dataSizeTests, failureCountTests} from './data';
 
-defineProps<{
-  msg: string
-}>()
+const selectedCapacity = ref(40)
+const selectedDataSize = ref(40)
+const selectedFileCount = ref(1)
+const selectedFileSize = ref(32)
+const finalDaysOutput = ref(0)
 
 // const exampleCount = 10;
 const exampleCount = capacityInputs.length;
@@ -53,23 +56,28 @@ console.log(testsData);
 // const xs = tf.tensor([capacityInputs, dataSizeInputs, failureCountInputs]);
 const xs = tf.tensor2d(input, [exampleCount, dimensionCount]);
 const ys = tf.tensor2d(labels, [exampleCount, 1]);
-const tests = tf.tensor2d(testsData, [testsData.length, dimensionCount]);
 
 xs.print();
 ys.print();
-tests.print();
 
 // Train the model using the data.
 model.fit(xs, ys).then(() => {
   // Use the model to do inference on a data point the model hasn't seen before:
+  runModel(testsData);
+});
+
+function runModel(d) {
+  const tests = tf.tensor2d(d, [d.length, dimensionCount]);
+  tests.print();
   const mOutput = model.predict(tests, {verbose: true});
-  mOutput.data().then(v => {
+  return mOutput.data().then(v => {
     console.log(mOutput, v);
     v.map(e => {
       console.log(scientificToDecimal(e));
     })
+    return v;
   })
-});
+}
 
 var scientificToDecimal = function (num) {
     var nsign = Math.sign(num);
@@ -106,23 +114,68 @@ var scientificToDecimal = function (num) {
 
     return nsign < 0 ? '-'+num : num;
 };
+
+function onSubmit() {
+  console.log(selectedCapacity.value);
+  console.log(selectedDataSize.value);
+  console.log(selectedFileCount.value);
+  console.log(selectedFileSize.value);
+  runModel([[Number(selectedCapacity.value), Number(selectedDataSize.value), 0]]).then(v => {
+    console.log('Model result', v);
+    finalDaysOutput.value = Math.floor(Math.abs(v));
+  })
+}
+
+
 </script>
 
 <template>
   <div class="calc">
-    <h1 class="green">Basic</h1>
-    <h3>
+    <h2 class="">
       Uses appliance capacity and customer data size.
-    </h3>
+    </h2>
+    <form class="inputForm" @submit.prevent="onSubmit">
+      <h4>Capacity of the Transfer Appliance in TB</h4>
+      <select v-model="selectedCapacity" autofocus>
+        <option>40</option>
+        <option>300</option>
+      </select>
+      <br />
+      <br />
+      <h4>Size of data on Transfer Appliance in TB</h4>
+      <input v-model="selectedDataSize"
+        placeholder="200"
+      />
+      <br />
+      <br />
+      <h4>Number of files on Transfer Appliance in millions (unused now)</h4>
+      <input v-model="selectedFileCount"
+        placeholder="1"
+      />
+      <br />
+      <br />
+      <h4>Average size of files on Transfer Appliance in KB (unused now)</h4>
+      <input v-model="selectedFileSize"
+        placeholder="1024"
+      /><br />
+      <br />
+      <button>
+        Submit
+      </button>
+    </form>
+      <h3 v-if="finalDaysOutput > 0">Number of days it will take to transfer data to GCS is {{ finalDaysOutput }}.</h3>
+      <h3 v-else-if="finalDaysOutput == 0"></h3>
+      <h3 v-else>Number of days it will take to transfer data to GCS is 1.</h3>
+
   </div>
 </template>
 
 <style scoped>
-h1 {
-  font-weight: 500;
-  font-size: 2.6rem;
-  position: relative;
-  top: -10px;
+/* @import "https://unpkg.com/todomvc-app-css@2.4.1/index.css"; */
+
+.inputForm {
+  margin: 1rem;
+  padding: 1rem;
 }
 
 h3 {

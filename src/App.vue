@@ -5,7 +5,7 @@ import WithFileSize from './components/WithFileSize.vue'
 
 <template>
   <header>
-    <h1 class="wrapper">
+    <h1 class="wrapper green">
       Transfer Speed Calculator
     </h1>
   </header>
@@ -27,12 +27,15 @@ import WithFileSize from './components/WithFileSize.vue'
   }
 
   h1 {
-    color: var(--color-text);
+    font-weight: 500;
+    font-size: 2.6rem;
+    position: relative;
+    top: -10px;
   }
 
   main {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 0fr;
     padding: 0 2rem;
   }
 </style>
