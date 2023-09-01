@@ -15,7 +15,7 @@ import WithFileSize from './components/WithFileSize.vue'
     <!-- <br />
     <br />
     <br /> -->
-    <WithFileSize />
+    <!-- <WithFileSize /> -->
   </main>
 </template>
 
