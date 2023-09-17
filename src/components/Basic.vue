@@ -178,6 +178,16 @@ function onSubmit() {
   padding: 1rem;
 }
 
+input, select, button {
+  padding: 10px;
+	height: 45px;
+	border: 1px solid gray;
+  border-radius: 8px;
+  color: white;
+	background: rgba(235, 235, 235, 0.003);
+	box-shadow: inset 0 -2px 1px rgba(235,235,235,0.03);
+}
+
 h3 {
   font-size: 1.2rem;
 }
